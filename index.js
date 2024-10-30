@@ -18,4 +18,4 @@ app.use((err,req,res,next) => {
     res.status(statusCode).json({error: err.message});
 })
 
-app.listen(port);
+app.listen(port, () => {console.log(`App is listening on port ${port}`)});
