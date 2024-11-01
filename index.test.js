@@ -53,7 +53,24 @@ describe('POST task', () => {
 
         const data = await response.json();
 
-        expect(response.status).to.equal(500);
+        expect(response.status).to.equal(400, data.error);
+        expect(data).to.be.an('object');
+        expect(data).to.include.all.keys('error');
+    })
+
+    it ('should not POST task with 0 length description', async() => {
+        const response = await fetch(URL + 'create',{
+            method: 'post',
+            headers: {
+                'Content-Type':'application/json',
+                Authorization: token
+            },
+            body: JSON.stringify({'description': ''})
+        })
+
+        const data = await response.json();
+
+        expect(response.status).to.equal(400, data.error);
         expect(data).to.be.an('object');
         expect(data).to.include.all.keys('error');
     })
@@ -95,10 +112,10 @@ describe('DELETE task', () => {
 })
 
 describe('POST register', () => {
-    const email = 'register@example.com';
-    const password = 'testRegister123';
-    
     it ('should register with valid email and password', async() => {
+        const email = 'register@example.com';
+        const password = 'testRegister123';
+
         const response = await fetch(URL + 'user/register',{
             method: 'post',
             headers:{
@@ -109,9 +126,28 @@ describe('POST register', () => {
 
         const data = await response.json();
 
-        expect(response.status).to.equal(201, data.error);
+        expect(response.status).to.equal(201);
         expect(data).to.be.an('object');
         expect(data).to.include.all.keys('id', 'email');
+    })
+
+    it ('should not let POST a user with password shorter than 8 characters', async() => {
+        const email = 'short@example.com';
+        const password = 'short';
+
+        const response = await fetch(URL + 'user/register',{
+            method: 'post',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({'email': email, 'password': password})
+        })
+
+        const data = await response.json();
+
+        expect(response.status).to.equal(400, data.error);
+        expect(data).to.be.an('object');
+        expect(data).to.include.all.keys('error');
     })
 })
 
